@@ -24,12 +24,11 @@ export default function EmbedForm() {
         body: JSON.stringify({ url: url.trim() }),
       });
 
+      const json = await res.json();
       if (res.status === 401) {
         window.location.href = '/dev';
         return;
       }
-
-      const json = await res.json();
 
       if (json?.ok) {
         setSuccess('Embed added! Refresh the page to see it.');
@@ -78,9 +77,4 @@ export default function EmbedForm() {
     </div>
   );
 }
-"use client";
 
-// Embeds feature removed — stub component kept to avoid import errors.
-export default function EmbedForm() {
-  return null;
-}

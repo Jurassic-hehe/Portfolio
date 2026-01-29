@@ -42,13 +42,11 @@ export default function MyEditsGrid({ embeds: initialEmbeds }: { embeds: string[
         credentials: 'same-origin',
         body: JSON.stringify({ index }),
       });
-
+      const json = await res.json();
       if (res.status === 401) {
         window.location.href = '/dev';
         return;
       }
-
-      const json = await res.json();
 
       if (json?.ok) {
         setEmbeds(embeds.filter((_, i) => i !== index));
@@ -176,9 +174,4 @@ export default function MyEditsGrid({ embeds: initialEmbeds }: { embeds: string[
     </div>
   );
 }
-"use client";
 
-// Embeds removed: render nothing to avoid UI and JS for embeds
-export default function MyEditsGrid() {
-  return null;
-}
