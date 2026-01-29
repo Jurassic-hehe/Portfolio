@@ -57,11 +57,14 @@ export async function POST(request: Request) {
     store.sessions[sid] = { createdAt: now, lastActive: now, expiresAt, ip };
     await writeStore(store);
 
-    const res = NextResponse.json({ ok: true });
     const cookieParts = [`dev_session=${sid}`, `Path=/`, `HttpOnly`, `SameSite=Strict`, `Max-Age=${Math.floor(SESSION_TIMEOUT_MS / 1000)}`];
-    if (process.env.NODE_ENV === 'production') cookieParts.push('Secure');
-    res.headers.set('Set-Cookie', cookieParts.join('; '));
-    return res;
+    const host = request.headers.get('host') || '';
+    const forwardedProto = request.headers.get('x-forwarded-proto');
+    const isSecureContext = forwardedProto === 'https' || (process.env.NODE_ENV === 'production' && host && !host.includes('localhost') && !host.startsWith('127.'));
+    if (isSecureContext) cookieParts.push('Secure');
+    const setCookie = cookieParts.join('; ');
+    console.log('[dev/unlock] setting cookie:', setCookie, 'host=', host, 'proto=', forwardedProto);
+    return NextResponse.json({ ok: true }, { headers: { 'Set-Cookie': setCookie } });
   } catch (e) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }

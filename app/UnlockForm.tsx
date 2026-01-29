@@ -15,9 +15,15 @@ export default function UnlockForm() {
       const res = await fetch('/api/dev/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ secret }),
       });
-      const json = await res.json();
+      let json: any = null;
+      try {
+        json = await res.json();
+      } catch (err) {
+        json = { ok: res.ok, error: `Request failed with status ${res.status}` };
+      }
       if (json?.ok) {
         // Reload to let server render the form
         window.location.reload();
