@@ -1,12 +1,13 @@
-import { NextResponse, NextRequest } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import fs from "fs/promises";
+import path from "path";
 
-const EMBEDS_FILE = path.join(process.cwd(), 'public', 'embeds.json');
+const EMBEDS_FILE = path.join(process.cwd(), "public", "embeds.json");
 
 async function loadEmbeds(): Promise<string[]> {
   try {
-    const data = await fs.readFile(EMBEDS_FILE, 'utf-8');
+    const data = await fs.readFile(EMBEDS_FILE, "utf-8");
     return JSON.parse(data);
   } catch {
     return [];
@@ -17,79 +18,85 @@ async function saveEmbeds(embeds: string[]): Promise<void> {
   await fs.writeFile(EMBEDS_FILE, JSON.stringify(embeds, null, 2));
 }
 
+// ✅ PUBLIC — anyone can read embeds
 export async function GET() {
   try {
     const embeds = await loadEmbeds();
     return NextResponse.json(embeds);
   } catch (e) {
-    console.error('Error loading embeds:', e);
+    console.error("Error loading embeds:", e);
     return NextResponse.json([], { status: 200 });
   }
 }
 
-import { enforceSession } from '../../../lib/devAuth';
-
-export async function POST(request: NextRequest) {
+// 🔒 PROTECTED — requires dev unlock
+export async function POST(request: Request) {
   try {
-    // Require admin session
-    const auth = await enforceSession(request);
-    if (!auth.ok) return auth.response;
+    // 🔐 Cookie-based auth (Vercel safe)
+    const cookieStore = await cookies();
+    const unlocked = cookieStore.get("dev_unlocked")?.value === "1";
+
+    if (!unlocked) {
+      return NextResponse.json(
+        { error: "Session expired" },
+        { status: 401 }
+      );
+    }
 
     const { url } = await request.json();
 
-    if (!url || typeof url !== 'string') {
-      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+    if (!url || typeof url !== "string") {
+      return NextResponse.json(
+        { error: "Invalid input" },
+        { status: 400 }
+      );
     }
 
     const trimmedInput = url.trim();
 
-    // Check if it's raw HTML embed code (iframe, blockquote, script, div with data attrs, etc.)
-    const isRawHTML = /<iframe|<blockquote|<script|<div[^>]*(?:data-|class=)/i.test(trimmedInput);
-
-    if (isRawHTML) {
-      // Accept raw HTML embeds (YouTube iframe, Instagram blockquote, etc.)
-      const embeds = await loadEmbeds();
-      
-      if (embeds.includes(trimmedInput)) {
-        return NextResponse.json(
-          { error: 'This embed already exists' },
-          { status: 400 }
-        );
-      }
-
-      embeds.unshift(trimmedInput);
-      await saveEmbeds(embeds);
-      return NextResponse.json({ ok: true });
-    }
-
-    // Validate it's a supported platform URL
-    const isSupported =
-      /youtube\.com|youtu\.be|vimeo\.com|instagram\.com/i.test(trimmedInput);
-
-    if (!isSupported) {
-      return NextResponse.json(
-        { error: 'Only YouTube, Vimeo, Instagram URLs or embed code are supported' },
-        { status: 400 }
+    // ✅ Accept raw embed HTML
+    const isRawHTML =
+      /<iframe|<blockquote|<script|<div[^>]*(?:data-|class=)/i.test(
+        trimmedInput
       );
-    }
 
     const embeds = await loadEmbeds();
 
-    // Check for duplicates
     if (embeds.includes(trimmedInput)) {
       return NextResponse.json(
-        { error: 'This embed already exists' },
+        { error: "This embed already exists" },
         { status: 400 }
       );
     }
 
-    embeds.unshift(trimmedInput); // Add to beginning
+    // 🌐 Validate URL embeds
+    if (!isRawHTML) {
+      const isSupported =
+        /youtube\.com|youtu\.be|vimeo\.com|instagram\.com/i.test(
+          trimmedInput
+        );
+
+      if (!isSupported) {
+        return NextResponse.json(
+          {
+            error:
+              "Only YouTube, Vimeo, Instagram URLs or embed code are supported",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    embeds.unshift(trimmedInput);
     await saveEmbeds(embeds);
 
     return NextResponse.json({ ok: true });
   } catch (e) {
-    const errorMsg = e instanceof Error ? e.message : 'Unknown error';
-    console.error('Embed error:', errorMsg);
-    return NextResponse.json({ error: `Failed to add embed: ${errorMsg}` }, { status: 500 });
+    const errorMsg = e instanceof Error ? e.message : "Unknown error";
+    console.error("Embed error:", errorMsg);
+    return NextResponse.json(
+      { error: `Failed to add embed: ${errorMsg}` },
+      { status: 500 }
+    );
   }
 }
