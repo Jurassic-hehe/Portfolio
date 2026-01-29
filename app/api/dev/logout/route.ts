@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
-import { readStore, writeStore } from '../../../../lib/devStore';
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
-    const cookieHeader = request.headers.get('cookie') || '';
-    const match = cookieHeader.match(/(?:^|; )dev_session=([^;]+)/);
-    const sid = match ? match[1] : null;
-    const store = await readStore();
-    if (sid && store.sessions && store.sessions[sid]) {
-      delete store.sessions[sid];
-      await writeStore(store);
-    }
-
+    const isProd = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
     const res = NextResponse.json({ ok: true });
-    res.headers.set('Set-Cookie', `dev_session=deleted; Path=/; HttpOnly; Max-Age=0; SameSite=Strict`);
+    // Clear the dev_unlocked cookie
+    res.cookies.set({
+      name: 'dev_unlocked',
+      value: '',
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: isProd,
+      maxAge: 0,
+    });
     return res;
   } catch (e) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

@@ -29,12 +29,14 @@ export async function POST(request: Request) {
   // ✅ Set cookie only (NO file store)
   const res = NextResponse.json({ ok: true });
 
+  const isProd = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
+
   res.cookies.set({
     name: "dev_unlocked",
     value: "1",
     httpOnly: true,
     sameSite: "strict",
-    secure: true,
+    secure: isProd,
     path: "/",
     maxAge: 60 * 60, // 1 hour
   });

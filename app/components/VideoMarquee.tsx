@@ -9,7 +9,13 @@ export default function VideoMarquee() {
   useEffect(() => {
     let mounted = true;
     fetch('/api/videos')
-      .then((r) => r.json())
+      .then((r) => {
+        if (r.status === 401) {
+          window.location.href = '/dev';
+          throw new Error('unauthorized');
+        }
+        return r.json();
+      })
       .then((data) => {
         if (!mounted) return;
         if (Array.isArray(data)) setVideos(data);

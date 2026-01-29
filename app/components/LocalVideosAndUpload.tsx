@@ -16,6 +16,10 @@ export default function LocalVideosAndUpload() {
   async function load() {
     try {
       const res = await fetch('/api/videos');
+      if (res.status === 401) {
+        window.location.href = '/dev';
+        return;
+      }
       const data = await res.json();
       if (Array.isArray(data)) setVideos(data);
     } catch (e) {
@@ -48,6 +52,10 @@ export default function LocalVideosAndUpload() {
       }
       console.log('Sending upload request to /api/upload');
       const res = await fetch('/api/upload', { method: 'POST', body: up });
+      if (res.status === 401) {
+        window.location.href = '/dev';
+        return;
+      }
       console.log('Response status:', res.status);
       const json = await res.json();
       console.log('Response JSON:', json);
@@ -89,6 +97,10 @@ export default function LocalVideosAndUpload() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename }),
       });
+      if (res.status === 401) {
+        window.location.href = '/dev';
+        return;
+      }
       
       const json = await res.json();
       

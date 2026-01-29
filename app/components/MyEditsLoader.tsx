@@ -11,6 +11,10 @@ export default function MyEditsLoader() {
     async function load() {
       try {
         const res = await fetch('/api/embeds');
+        if (res.status === 401) {
+          window.location.href = '/dev';
+          return;
+        }
         const data = await res.json();
         if (mounted) setEmbeds(Array.isArray(data) ? data : []);
       } catch (e) {

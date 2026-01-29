@@ -43,6 +43,10 @@ export default function MyEditsGrid({ embeds: initialEmbeds }: { embeds: string[
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ index }),
       });
+      if (res.status === 401) {
+        window.location.href = '/dev';
+        return;
+      }
 
       const json = await res.json();
 

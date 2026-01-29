@@ -23,6 +23,11 @@ export default function EmbedForm() {
         body: JSON.stringify({ url: url.trim() }),
       });
 
+      if (res.status === 401) {
+        window.location.href = '/dev';
+        return;
+      }
+
       const json = await res.json();
 
       if (json?.ok) {
