@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 
 export default async function DevPage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const unlocked = cookieStore.get("dev_unlocked")?.value === "1";
 
   if (!unlocked) {
