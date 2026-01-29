@@ -15,7 +15,7 @@ export default function UnlockForm() {
       const res = await fetch('/api/dev/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        credentials: 'same-origin',
         body: JSON.stringify({ secret }),
       });
       let json: any = null;

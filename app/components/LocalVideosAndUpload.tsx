@@ -15,7 +15,7 @@ export default function LocalVideosAndUpload() {
 
   async function load() {
     try {
-      const res = await fetch('/api/videos');
+      const res = await fetch('/api/videos', { credentials: 'same-origin' });
       if (res.status === 401) {
         window.location.href = '/dev';
         return;
@@ -51,7 +51,7 @@ export default function LocalVideosAndUpload() {
         up.append('secret', secretInput.value);
       }
       console.log('Sending upload request to /api/upload');
-      const res = await fetch('/api/upload', { method: 'POST', body: up });
+        const res = await fetch('/api/upload', { method: 'POST', body: up, credentials: 'same-origin' });
       if (res.status === 401) {
         window.location.href = '/dev';
         return;
@@ -96,6 +96,7 @@ export default function LocalVideosAndUpload() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename }),
+          credentials: 'same-origin',
       });
       if (res.status === 401) {
         window.location.href = '/dev';

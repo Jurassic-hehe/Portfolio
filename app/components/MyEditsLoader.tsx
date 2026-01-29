@@ -15,8 +15,6 @@ export default function MyEditsLoader() {
           window.location.href = '/dev';
           return;
         }
-        const data = await res.json();
-        if (mounted) setEmbeds(Array.isArray(data) ? data : []);
       } catch (e) {
         if (mounted) setEmbeds([]);
       }
@@ -31,3 +29,9 @@ export default function MyEditsLoader() {
 
   return <MyEditsGrid embeds={embeds} />;
 }
+  "use client";
+
+  // Embeds removed: loader stub kept to avoid import failures
+  export default function MyEditsLoader() {
+    return null;
+  }
