@@ -1,5 +1,6 @@
 import MyEditsGrid from '../components/MyEditsGrid';
 import PersonalBranding from '../components/PersonalBranding';
+export const dynamic = "force-dynamic";
 
 async function getEmbeds(): Promise<string[]> {
   try {
