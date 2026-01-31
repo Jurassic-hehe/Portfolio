@@ -1,44 +1,33 @@
 import PersonalBranding from '../components/PersonalBranding';
+import RainOverlay from '../components/CodeRainBackground';
+import fs from 'fs/promises';
+import path from 'path';
 export const dynamic = "force-dynamic";
 
-// YouTube API key you provided
-const YT_API_KEY = process.env.YOUTUBE_API_KEY ?? "AIzaSyClEG-nlJXdiVIHuaQ2BkwtJhTX576dRZY";
-const CHANNEL_HANDLE = "Jurassic00"; // the @ handle
+async function loadEmbeds(): Promise<string[]> {
+  const EMBEDS_DATA = path.join(process.cwd(), 'data', 'embeds.json');
+  const EMBEDS_PUBLIC = path.join(process.cwd(), 'public', 'embeds.json');
 
-// 1️⃣ Get the uploads playlist ID for the channel
-async function getUploadsPlaylistId(handle) {
-  // YouTube Data API: search channel by handle
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=${handle}&key=${YT_API_KEY}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (!data.items?.length) return null;
-  return data.items[0].contentDetails.relatedPlaylists.uploads;
-}
-
-// 2️⃣ Get top 10 videos from that playlist
-async function getTop10Videos(playlistId) {
-  const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=10&key=${YT_API_KEY}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (!data.items) return [];
-
-  return data.items.map(item => ({
-    videoId: item.snippet.resourceId.videoId,
-    title: item.snippet.title,
-  }));
+  try {
+    const data = await fs.readFile(EMBEDS_DATA, 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    try {
+      const data = await fs.readFile(EMBEDS_PUBLIC, 'utf-8');
+      return JSON.parse(data);
+    } catch {
+      return [];
+    }
+  }
 }
 
 export default async function MyEditsPage() {
-  const uploadsPlaylist = await getUploadsPlaylistId(CHANNEL_HANDLE);
-  const videos = uploadsPlaylist ? await getTop10Videos(uploadsPlaylist) : [];
+  const embeds = await loadEmbeds();
 
   return (
-    <div className="w-full bg-black text-white">
-      <section className="relative w-full py-20 px-4">
+    <div className="w-full bg-black text-white min-h-screen relative">
+      <RainOverlay />
+      <section className="relative w-full py-20 px-4 z-10">
         <PersonalBranding type="divider" />
 
         <div className="text-center mb-12 max-w-4xl mx-auto">
@@ -50,22 +39,47 @@ export default async function MyEditsPage() {
 
         {/* —————— YouTube Embeds —————— */}
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {videos.length > 0 ? (
-            videos.map(({ videoId, title }) => (
-              <iframe
-                key={videoId}
-                className="w-full aspect-video rounded-lg"
-                src={`https://www.youtube.com/embed/${videoId}`}
-                title={title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            ))
+          {embeds.length > 0 ? (
+            embeds.map((entry, i) => {
+              const trimmed = (entry || '').trim();
+              const isRawHTML = /<iframe|<blockquote|<script|<div[^>]*>/i.test(trimmed);
+
+              if (isRawHTML) {
+                return (
+                  <div
+                    key={i}
+                    className="w-full aspect-video rounded-lg overflow-hidden"
+                    dangerouslySetInnerHTML={{ __html: trimmed }}
+                  />
+                );
+              }
+
+              // Extract YouTube video ID from common URL formats
+              const ytMatch = trimmed.match(/(?:v=|embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+              if (ytMatch) {
+                const videoId = ytMatch[1];
+                return (
+                  <iframe
+                    key={i}
+                    className="w-full aspect-video rounded-lg"
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title={`YouTube video ${videoId}`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                );
+              }
+
+              // Unsupported entry fallback
+              return (
+                <div key={i} className="text-gray-400 text-center col-span-full">
+                  Unsupported embed: {trimmed}
+                </div>
+              );
+            })
           ) : (
-            <div className="text-gray-400 text-center col-span-full">
-              Unable to load videos.
-            </div>
+            <div className="text-gray-400 text-center col-span-full">Unable to load videos.</div>
           )}
         </div>
 
