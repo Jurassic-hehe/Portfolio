@@ -1,5 +1,5 @@
-import PersonalBranding from './components/PersonalBranding';
-import RainOverlay from './components/CodeRainBackground';
+import PersonalBranding from '../components/PersonalBranding.tsx';
+import RainOverlay from '../components/CodeRainBackground.tsx';
 import fs from 'fs/promises';
 import path from 'path';
 export const dynamic = "force-dynamic";
@@ -92,5 +92,6 @@ export default async function MyEditsPage() {
     </div>
   );
 }
+
 
 
