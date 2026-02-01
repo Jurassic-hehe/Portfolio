@@ -1,0 +1,384 @@
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* Content Container */
+.container {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 1200px;
+  width: 100%;
+  padding: 60px 20px;
+  gap: 40px;
+}
+
+/* Banner Image Wrapper */
+.bannerWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+  border-radius: 20px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imageShadow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(168, 85, 247, 0.15) 100%
+  );
+  pointer-events: none;
+}
+
+.bannerWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.4),
+    rgba(124, 58, 237, 0.2),
+    transparent
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.bannerWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* Text Section */
+.textSection {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.headline {
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.2;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  margin-bottom: 20px;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+}
+
+.ampersand {
+  color: #a855f7;
+  display: inline-block;
+  margin: 0 8px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.cursor {
+  position: relative;
+  background: linear-gradient(90deg, #a855f7, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+}
+
+.cursor::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1em;
+  background: #a855f7;
+  animation: blink 1s ease-in-out infinite;
+}
+
+.subheadline {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+}
+
+/* CTA Button */
+.ctaButton {
+  position: relative;
+  padding: 16px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  box-shadow: 0 10px 40px rgba(168, 85, 247, 0.3);
+}
+
+.ctaButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.ctaButton:hover::before {
+  left: 100%;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 50px rgba(168, 85, 247, 0.5);
+}
+
+.ctaButton:active {
+  transform: translateY(-1px);
+}
+
+.buttonArrow {
+  margin-left: 8px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.ctaButton:hover .buttonArrow {
+  transform: translateX(4px);
+}
+
+/* Glow Balls */
+.glowBall {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.glowBall1 {
+  width: 300px;
+  height: 300px;
+  background: #a855f7;
+  top: 10%;
+  left: 10%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.glowBall2 {
+  width: 250px;
+  height: 250px;
+  background: #7c3aed;
+  bottom: 10%;
+  right: 10%;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes buttonFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes blink {
+  0%, 49%, 100% {
+    opacity: 1;
+  }
+  50%, 99% {
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-30px);
+  }
+}
+
+/* Apply animations */
+.fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.slideUp {
+  animation: slideUp 0.8s ease-out forwards;
+  animation-delay: 0.4s;
+}
+
+.buttonFade {
+  animation: buttonFade 0.8s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 40px 0;
+  }
+
+  .container {
+    padding: 40px 16px;
+    gap: 30px;
+  }
+
+  .bannerWrapper {
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+  }
+
+  .headline {
+    font-size: 1.8rem;
+  }
+
+  .subheadline {
+    font-size: 1rem;
+  }
+
+  .ctaButton {
+    padding: 14px 32px;
+    font-size: 1rem;
+  }
+
+  .glowBall1 {
+    width: 200px;
+    height: 200px;
+    top: 20%;
+    left: 5%;
+  }
+
+  .glowBall2 {
+    width: 150px;
+    height: 150px;
+    bottom: 20%;
+    right: 5%;
+  }
+
+  .codeRain {
+    opacity: 0.3;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 30px 12px;
+    gap: 24px;
+  }
+
+  .headline {
+    font-size: 1.5rem;
+  }
+
+  .ampersand {
+    margin: 0 4px;
+  }
+
+  .subheadline {
+    font-size: 0.95rem;
+  }
+
+  .bannerWrapper {
+    aspect-ratio: 9 / 12;
+  }
+
+  .codeRain {
+    opacity: 0.15;
+  }
+
+  .overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(10, 0, 21, 0.1) 0%,
+      rgba(10, 0, 21, 0.5) 50%,
+      rgba(10, 0, 21, 0.8) 100%
+    );
+  }
+}
